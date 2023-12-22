@@ -9,29 +9,20 @@ TTS models are stored in ONNX format. ONNX is a computational graph with weights
 4. sid - Speaker id. Integer. Optional and unused in this setup, but the final system would have multiple speakers available. 
 
 ### Directory structure:
-1. model_repository - contains the model. Structure is defined by Triton inference server.
-2. text_to_seq.py - contains a function to convert text to input ids.
-3. infer_onnx.py - contains an example python function to run inference from model.
-4. infer_onnx.cs - contains the translation of infer_onnx.py by ChatGPT. Use at your own risk.
 
-## Usage
+1. infer_onnx.py - contains an example python function to run inference from model.
 
-### Triton server
-To serve model use triton docker container:
-````
-sudo docker run --rm -p 8000:8000 -p 8001:8001 -p 8002:8002 -v ${PWD}/model_repository:/models nvcr.io/nvidia/tritonserver:23.08-py3 tritonserver --model-repository=/models
-````
 
-Usage instructions can be found on github. 
-https://github.com/triton-inference-server/tutorials/tree/main/Quick_Deploy/ONNX
+## Python Usage
 
-### Python
+Setup
 
-Use infer_onnx.py in your setup. Modify variable `text` to change input for the model.
+```
+pip install -r requirements.txt
+```
 
-### C#
+Now you can use infer_onnx.py in your setup. Modify variable `text` to change input for the model.
 
-Use infer_onnx.cs in your setup. Modify variable `text` to change input for the model. Probably would require debugging. For reference check ONNX runtime instructions for C#
-
-https://onnxruntime.ai/docs/tutorials/csharp/bert-nlp-csharp-console-app.html
-
+```
+python infer_onnx.py --text "Что-то совсем старушка распоясалася." --model /path/to/model
+```
