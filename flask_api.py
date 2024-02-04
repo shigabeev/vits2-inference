@@ -1,4 +1,8 @@
-from flask import Flask, request, jsonify
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse, Response
+from pydantic import BaseModel
+import numpy as np
+import io
 import numpy as np
 import onnxruntime
 import pickle
@@ -6,35 +10,26 @@ import base64
 from io import BytesIO
 from scipy.io import wavfile
 from russian_normalization import normalize_russian
-# Import other necessary modules and functions like text_to_sequence, inference, etc.
 
-app = Flask(__name__)
+app = FastAPI(title="TTS API", description="A simple Text-to-Speech API", version="1.0")
 
 global text_processor, model
 
-MODEL_PATH = '/home/frappuccino/dev/vits2_nov26/exported_models/shergin_146k_frozen_te.onnx'  # Specify the path to your ONNX model
+MODEL_PATH = '/home/frappuccino/dev/MB-iSTFT-VITS2/exported_models/shergin_feb1.onnx'  # Specify the path to your ONNX model
 
-# Символы для Наташи
-# _pad = '_'
-# _punctuation = ' !+,-.:;?«»—'
-# _letters = 'абвгдежзийклмнопрстуфхцчшщъыьэюяё'
-# _letters_ipa = "ɑɐɒæɓʙβɔɕçɗɖðʤəɘɚɛɜɝɞɟʄɡɠɢʛɦɧħɥʜɨɪʝɭɬɫɮʟɱɯɰŋɳɲɴøɵɸθœɶʘɹɺɾɻʀʁɽʂʃʈʧʉʊʋⱱʌɣɤʍχʎʏʑʐʒʔʡʕʢǀǁǂǃˈˌːˑʼʴʰʱʲʷˠˤ˞↓↑→↗↘'̩'ᵻ"
-
-# # Export all symbols:
-# symbols = [_pad] + list(_punctuation) + list(_letters) + list(_letters_ipa)
-
-# Символы для Шергина
 _pad = '_'
-_punctuation = ' !()+,-./:;<>?«»́‑–—’“”„…'
+_punctuation = ' !+,-.:;?«»—'
 _letters = 'абвгдежзийклмнопрстуфхцчшщъыьэюяё'
 _letters_ipa = "ɑɐɒæɓʙβɔɕçɗɖðʤəɘɚɛɜɝɞɟʄɡɠɢʛɦɧħɥʜɨɪʝɭɬɫɮʟɱɯɰŋɳɲɴøɵɸθœɶʘɹɺɾɻʀʁɽʂʃʈʧʉʊʋⱱʌɣɤʍχʎʏʑʐʒʔʡʕʢǀǁǂǃˈˌːˑʼʴʰʱʲʷˠˤ˞↓↑→↗↘'̩'ᵻ"
-
 
 # Export all symbols:
 symbols = [_pad] + list(_punctuation) + list(_letters) + list(_letters_ipa)
 
 # Mappings from symbol to numeric ID and vice versa:
 _symbol_to_id = {s: i for i, s in enumerate(symbols)}
+
+class TTSRequest(BaseModel):
+    text: str
 
 def convert_audio_to_base64(audio):
     # Convert numpy audio array to base64 encoded audio
@@ -75,11 +70,14 @@ def process_sentence(text):
     text = text.replace( ':',  ': : :')
     return text
 
-
+def split_text(text):
+    # Implement your text splitting logic here
+    # For simplicity, let's assume this function yields sentences or phrases from the text
+    yield from text.split('. ')
 
 def inference(text, 
               model, 
-              sid=[3],
+              sid=None,
               scales=np.array([0.667, 1.0, 0.8], dtype=np.float32)):
     phoneme_ids = text_to_sequence(text)
     text = np.expand_dims(np.array(phoneme_ids, dtype=np.int64), 0)
@@ -116,21 +114,48 @@ def text_to_sequence(text):
             sequence += [symbol_id]
     return np.array(sequence)
 
-@app.route('/synthesize', methods=['POST'])
-def synthesize():
-    data = request.json
-    text = data.get('text')
+
+@app.post("/synthesize/")
+async def synthesize(request: TTSRequest):
+    text = request.text
     if not text:
-        return jsonify({'error': 'No text provided'}), 400
-    
+        raise HTTPException(status_code=400, detail="No text provided")
+
     text_normalized = process_sentence(text)
     audio, sample_rate = inference(text_normalized, model)
-    audio_base64 = convert_audio_to_base64(audio)
 
-    return jsonify({'audio': audio_base64, 'sample_rate': sample_rate})
+    # Log the size of the generated audio data
+    print(f"Generated audio size: {len(audio)} bytes")
+
+    if len(audio) == 0:
+        raise HTTPException(status_code=500, detail="Generated audio is empty")
+
+    buffer = io.BytesIO()
+    wavfile.write(buffer, sample_rate, audio.astype(np.int16))
+    buffer.seek(0)
+    return Response(content=buffer.read(), media_type="audio/wav")
+
+
+# @app.post("/synthesize_async/")
+# async def synthesize_async(request: TTSRequest):
+#     text = request.text
+#     if not text:
+#         raise HTTPException(status_code=400, detail="No text provided")
+
+#     def generate_audio():
+#         for chunk in split_text(text):
+#             text_normalized = process_sentence(chunk)  # Process each chunk of text
+
+#             audio, sample_rate = inference(text_normalized, model)  # Get audio for the chunk
+#             audio = audio.astype(np.int16)
+#             yield audio.tobytes()  # Yield audio bytes
+
+#     return StreamingResponse(generate_audio(), media_type="audio/wav")
+
 
 if __name__ == '__main__':
+    import uvicorn
     # Load models and other resources outside of request functions to avoid reloading them on each request
     text_processor = load_accentuator()
     model = load_model(MODEL_PATH)  # Load your TTS model
-    app.run(debug=True, port=8080)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
