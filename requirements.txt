@@ -1,3 +1,5 @@
 onnxruntime
 scipy
 ruaccent
+fastapi
+uvicorn
