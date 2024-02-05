@@ -10,6 +10,7 @@ import base64
 from io import BytesIO
 from scipy.io import wavfile
 from russian_normalization import normalize_russian
+from symbols import symbols
 
 app = FastAPI(title="TTS API", description="A simple Text-to-Speech API", version="1.0")
 
@@ -17,16 +18,16 @@ global text_processor, model
 
 MODEL_PATH = '/home/frappuccino/dev/MB-iSTFT-VITS2/exported_models/shergin_feb1.onnx'  # Specify the path to your ONNX model
 
-_pad = '_'
-_punctuation = ' !+,-.:;?«»—'
-_letters = 'абвгдежзийклмнопрстуфхцчшщъыьэюяё'
-_letters_ipa = "ɑɐɒæɓʙβɔɕçɗɖðʤəɘɚɛɜɝɞɟʄɡɠɢʛɦɧħɥʜɨɪʝɭɬɫɮʟɱɯɰŋɳɲɴøɵɸθœɶʘɹɺɾɻʀʁɽʂʃʈʧʉʊʋⱱʌɣɤʍχʎʏʑʐʒʔʡʕʢǀǁǂǃˈˌːˑʼʴʰʱʲʷˠˤ˞↓↑→↗↘'̩'ᵻ"
+# _pad = '_'
+# _punctuation = ' !+,-.:;?«»—'
+# _letters = 'абвгдежзийклмнопрстуфхцчшщъыьэюяё'
+# _letters_ipa = "ɑɐɒæɓʙβɔɕçɗɖðʤəɘɚɛɜɝɞɟʄɡɠɢʛɦɧħɥʜɨɪʝɭɬɫɮʟɱɯɰŋɳɲɴøɵɸθœɶʘɹɺɾɻʀʁɽʂʃʈʧʉʊʋⱱʌɣɤʍχʎʏʑʐʒʔʡʕʢǀǁǂǃˈˌːˑʼʴʰʱʲʷˠˤ˞↓↑→↗↘'̩'ᵻ"
 
-# Export all symbols:
-symbols = [_pad] + list(_punctuation) + list(_letters) + list(_letters_ipa)
+# # Export all symbols:
+# symbols = [_pad] + list(_punctuation) + list(_letters) + list(_letters_ipa)
 
-# Mappings from symbol to numeric ID and vice versa:
-_symbol_to_id = {s: i for i, s in enumerate(symbols)}
+# # Mappings from symbol to numeric ID and vice versa:
+# _symbol_to_id = {s: i for i, s in enumerate(symbols)}
 
 class TTSRequest(BaseModel):
     text: str
