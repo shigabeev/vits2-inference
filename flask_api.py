@@ -11,12 +11,24 @@ from io import BytesIO
 from scipy.io import wavfile
 from russian_normalization import normalize_russian
 from symbols import symbols
+from ruaccent import RUAccent 
 
 app = FastAPI(title="TTS API", description="A simple Text-to-Speech API", version="1.0")
-
-global text_processor, model
-
 MODEL_PATH = '/home/frappuccino/dev/MB-iSTFT-VITS2/exported_models/shergin_feb1.onnx'  # Specify the path to your ONNX model
+
+def load_model(checkpoint_path):
+    sess_options = onnxruntime.SessionOptions()
+    model = onnxruntime.InferenceSession(checkpoint_path, sess_options=sess_options)
+    return model
+
+
+text_processor = RUAccent().load(omograph_model_size='medium_poetry', 
+                            use_dictionary=True, 
+                            custom_dict={}, 
+                            custom_homographs={})
+model = load_model(MODEL_PATH)  # Load your TTS model
+
+
 
 # _pad = '_'
 # _punctuation = ' !+,-.:;?«»—'
@@ -26,8 +38,8 @@ MODEL_PATH = '/home/frappuccino/dev/MB-iSTFT-VITS2/exported_models/shergin_feb1.
 # # Export all symbols:
 # symbols = [_pad] + list(_punctuation) + list(_letters) + list(_letters_ipa)
 
-# # Mappings from symbol to numeric ID and vice versa:
-# _symbol_to_id = {s: i for i, s in enumerate(symbols)}
+# Mappings from symbol to numeric ID and vice versa:
+_symbol_to_id = {s: i for i, s in enumerate(symbols)}
 
 class TTSRequest(BaseModel):
     text: str
@@ -38,27 +50,6 @@ def convert_audio_to_base64(audio):
     wavfile.write(buffered, 22050, audio)
     audio_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
     return audio_base64
-
-def load_model(checkpoint_path):
-    sess_options = onnxruntime.SessionOptions()
-    model = onnxruntime.InferenceSession(checkpoint_path, sess_options=sess_options)
-    return model
-
-
-def load_accentuator():
-    """
-    Text normalizer. Converts "На горе стояла елка" into "На гор+е сто+яла +ёлка"
-    """
-    try:
-        from ruaccent import RUAccent 
-        text_processor = RUAccent()
-        text_processor.load(omograph_model_size='medium_poetry', 
-                            use_dictionary=True, 
-                            custom_dict={}, 
-                            custom_homographs={})
-        return text_processor
-    except ImportError:
-        return None
 
 
 def process_sentence(text):
@@ -157,6 +148,4 @@ async def synthesize(request: TTSRequest):
 if __name__ == '__main__':
     import uvicorn
     # Load models and other resources outside of request functions to avoid reloading them on each request
-    text_processor = load_accentuator()
-    model = load_model(MODEL_PATH)  # Load your TTS model
     uvicorn.run(app, host="0.0.0.0", port=8000)
