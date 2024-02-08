@@ -26,3 +26,7 @@ Now you can use infer_onnx.py in your setup. Modify variable `text` to change in
 ```
 python infer_onnx.py --text "Что-то совсем старушка распоясалася." --model /path/to/model
 ```
+
+## Huggingface page
+
+https://huggingface.co/frappuccino/vits2_ru_natasha/
