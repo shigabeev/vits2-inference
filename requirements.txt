@@ -5,3 +5,5 @@ fastapi
 uvicorn
 gunicorn
 streamlit
+huggingface_hub
+transformers
