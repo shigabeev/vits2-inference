@@ -1,13 +1,13 @@
 # run with streamlit run demo.py --server.port 8080
 
+import os
 import streamlit as st
 
 import pickle
 
-from text.symbols import symbols
-from text import text_to_sequence
+from symbols import symbols #, text_to_sequence
 
-from ruaccent_copy import RUAccent
+from ruaccent import RUAccent
 
 import nltk
 import onnxruntime
@@ -85,12 +85,13 @@ def inference(text,
 
 @st.cache_resource
 def load_normalizer():
-    # return Normalizer(input_case='lower_cased',
-    #                     deterministic=False,
-    #                     lang='ru')
-    with open('normalizer.pkl', 'rb') as f:
-        normalizer = pickle.load(f)
-    return normalizer
+    if os.path.isfile('normalizer.pkl'):
+        with open('normalizer.pkl', 'rb') as f:
+            normalizer = pickle.load(f)
+        return normalizer
+    return Normalizer(input_case='lower_cased',
+                        deterministic=False,
+                        lang='ru')
 
 def process_sentence(text):
     text = text.replace(', ', ', , , ')
