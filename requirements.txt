@@ -7,3 +7,7 @@ gunicorn
 streamlit
 huggingface_hub
 transformers
+nltk
+Cython
+pynini==2.1.5
+nemo_text_processing
