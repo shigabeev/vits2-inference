@@ -37,6 +37,7 @@ _symbol_to_id = {s: i for i, s in enumerate(symbols)}
 
 class TTSRequest(BaseModel):
     text: str
+    length_scale: float = 1.0
 
 def convert_audio_to_base64(audio):
     # Convert numpy audio array to base64 encoded audio
@@ -63,7 +64,7 @@ def split_text(text):
 def inference(text, 
               model, 
               sid=None,
-              scales=np.array([0.4, 0.9, 0.6], dtype=np.float32)):
+              scales=np.array([0.4, 1.0, 0.6], dtype=np.float32)):
     phoneme_ids = text_to_sequence(text)
     text = np.expand_dims(np.array(phoneme_ids, dtype=np.int64), 0)
     text_lengths = np.array([text.shape[1]], dtype=np.int64)
@@ -103,6 +104,8 @@ def text_to_sequence(text):
 @app.post("/synthesize/")
 async def synthesize(request: TTSRequest):
     text = request.text
+    length_scale = request.length_scale
+    scales = [0.4, length_scale, 0.6]
     if not text:
         raise HTTPException(status_code=400, detail="No text provided")
     
@@ -110,7 +113,7 @@ async def synthesize(request: TTSRequest):
     for sentence in nltk.sent_tokenize(text):
         text_normalized = process_sentence(sentence)
         print(text_normalized)
-        audio, sample_rate = inference(text_normalized, model)
+        audio, sample_rate = inference(text_normalized, model, scales=scales)
         final_wav = np.append(final_wav, audio)
         final_wav = np.append(final_wav, np.zeros(int(0.4*sample_rate)))
     
