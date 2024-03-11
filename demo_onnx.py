@@ -84,14 +84,18 @@ def inference(text,
     return audio, 22050
 
 @st.cache_resource
-def load_normalizer():
-    if os.path.isfile('normalizer.pkl'):
-        with open('normalizer.pkl', 'rb') as f:
+def load_normalizer(path = 'normalizer.pkl'):
+    if os.path.isfile(path):
+        with open(path, 'rb') as f:
             normalizer = pickle.load(f)
         return normalizer
-    return Normalizer(input_case='lower_cased',
+    normalizer = Normalizer(input_case='lower_cased',
                         deterministic=False,
                         lang='ru')
+    with open(path, 'wb') as f:
+        pickle.dump(normalizer, f)
+    return normalizer
+
 
 def process_sentence(text):
     text = text.replace(', ', ', , , ')
@@ -108,7 +112,7 @@ if __name__ == "__main__":
 
     normalizer = load_normalizer()
     
-    checkpoint_path1='/home/frappuccino/dev/MB-iSTFT-VITS2/exported_models/shergin_feb1.onnx'
+    checkpoint_path1='/home/frappuccino/vits2-inference/model_repository/shergin/feb1/model.onnx'
     checkpoint_path2='/home/frappuccino/dev/vits2_nov26/exported_models/natasha.onnx'
     checkpoint_path = st.selectbox("pick the model", [checkpoint_path1])#, checkpoint_path1])
     

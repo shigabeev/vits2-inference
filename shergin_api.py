@@ -1,38 +1,73 @@
+import io
+from io import BytesIO
+import os
+import base64
+import pickle
+import logging
+
+import nltk
+import numpy as np
+import onnxruntime
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse, Response
 from pydantic import BaseModel
-import numpy as np
-import io
-import numpy as np
-import onnxruntime
-import pickle
-import base64
-from io import BytesIO
 from scipy.io import wavfile
 from russian_normalization import normalize_russian
-from symbols import symbols
 from ruaccent import RUAccent 
-import nltk
+from nemo_text_processing.text_normalization.normalize import Normalizer
+
+from symbols import symbols
 
 app = FastAPI(title="TTS API", description="A simple Text-to-Speech API", version="1.0")
 MODEL_PATH = '/home/frappuccino/vits2-inference/model_repository/shergin/feb1/model.onnx'
 
 
-
-def load_model(checkpoint_path):
-    sess_options = onnxruntime.SessionOptions()
-    model = onnxruntime.InferenceSession(checkpoint_path, sess_options=sess_options)
-    return model
-
-text_processor = RUAccent()
-text_processor.load(omograph_model_size='medium_poetry', 
-                            use_dictionary=True, 
-                            custom_dict={}, 
-                            custom_homographs={})
-model = load_model(MODEL_PATH)  # Load your TTS model
+# Initialize your model variable outside of your request handling functions
+model = None
+text_processor = None
+normalizer = None
 
 # Mappings from symbol to numeric ID and vice versa:
 _symbol_to_id = {s: i for i, s in enumerate(symbols)}
+
+stress_dict = {
+    "шергин": "ш+ергин",
+    "шергина": "ш+ергина",
+    "шергину": "ш+ергину",
+    "писахов": "пис+ахов",
+    "писахова": "пис+ахова",
+    "писахову": "пис+ахову"
+}
+
+def load_normalizer(path = 'normalizer.pkl'):
+    if os.path.isfile(path):
+        with open(path, 'rb') as f:
+            normalizer = pickle.load(f)
+        return normalizer
+    normalizer = Normalizer(input_case='lower_cased',
+                        deterministic=False,
+                        lang='ru')
+    with open(path, 'wb') as f:
+        pickle.dump(normalizer, f)
+    return normalizer
+
+
+@app.on_event("startup")
+async def load_model():
+    global model, text_processor, normalizer
+    text_processor = RUAccent()
+    text_processor.load(omograph_model_size='medium_poetry', 
+                                use_dictionary=True, 
+                                custom_dict=stress_dict, 
+                                custom_homographs={})
+
+    normalizer = load_normalizer()
+    sess_options = onnxruntime.SessionOptions()
+    model = onnxruntime.InferenceSession(MODEL_PATH, 
+                                sess_options=sess_options,
+                                providers=['CPUExecutionProvider']
+                                )
+    
 
 class TTSRequest(BaseModel):
     text: str
@@ -47,7 +82,8 @@ def convert_audio_to_base64(audio):
 
 
 def process_sentence(text):
-    text = normalize_russian(text)
+    # text = normalize_russian(text)
+    text = normalizer.normalize(text, verbose=True, punct_post_process=True)
     text = text_processor.process_all(text)
     text = text.replace(', ', ', , , ')
     text = text.replace('... ', '. ')
@@ -63,7 +99,7 @@ def split_text(text):
 def inference(text, 
               model, 
               sid=None,
-              scales=np.array([0.4, 1.0, 0.6], dtype=np.float32)):
+              scales=np.array([0.4, 0.9, 0.6], dtype=np.float32)):
     phoneme_ids = text_to_sequence(text)
     text = np.expand_dims(np.array(phoneme_ids, dtype=np.int64), 0)
     text_lengths = np.array([text.shape[1]], dtype=np.int64)
@@ -111,7 +147,7 @@ async def synthesize(request: TTSRequest):
     final_wav = np.array([])
     for sentence in nltk.sent_tokenize(text):
         text_normalized = process_sentence(sentence)
-        print(text_normalized)
+        logging.debug(text_normalized)
         audio, sample_rate = inference(text_normalized, model, scales=scales)
         final_wav = np.append(final_wav, audio)
         final_wav = np.append(final_wav, np.zeros(int(0.4*sample_rate)))
