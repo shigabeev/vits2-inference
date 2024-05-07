@@ -1,0 +1,13 @@
+[Unit]
+Description=TTS inference API for VITS 2
+After=network.target
+
+[Service]
+User=frappuccino
+WorkingDirectory=/home/frappuccino/vits2-inference
+ExecStart=/bin/bash -c '/home/frappuccino/miniconda3/bin/uvicorn shergin_api:app --reload --port 8000 --host 0.0.0.0'
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

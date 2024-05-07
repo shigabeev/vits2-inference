@@ -1,0 +1,14 @@
+vits2_st.service
+[Unit]
+Description=TTS inference web interface for VITS 2
+After=network.target
+
+[Service]
+User=frappuccino
+WorkingDirectory=/home/frappuccino/vits2-inference
+ExecStart=/home/frappuccino/miniconda3/bin/streamlit run /home/frappuccino/vits2-inference/streamlit_fastapi.py --server.port 8080
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
