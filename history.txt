@@ -1,0 +1,357 @@
+## install NVIDIA drivers
+sudo apt install gcc make
+wget https://ru.download.nvidia.com/XFree86/Linux-x86_64/550.54.14/NVIDIA-Linux-x86_64-550.54.14.run
+sudo bash NVIDIA-Linux-x86_64-550.54.14.run
+
+## Install Anaconda (optional)
+mkdir -p ~/miniconda3
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+rm -rf ~/miniconda3/miniconda.sh
+~/miniconda3/bin/conda init bash
+~/miniconda3/bin/conda init zsh
+
+## 
+git clone git@github.com:shigabeev/vits2-inference.git
+cd vits2-inference/
+wget https://huggingface.co/frappuccino/vits2_ru_natasha/resolve/main/natasha.onnx?download=true
+pip install requirements.txt
+
+mkdir model_repository
+mkdir model_repository/natasha
+mkdir model_repository/shergin
+mv natasha.onnx\?download\=true model_repository/natasha/model.onnx
+
+## create services
+sudo cp services/* /etc/systemd/system/
+
+sudo systemctl daemon-reload
+sudo systemctl start vits2_st.service
+sudo systemctl start vits2_api.service
+
+
+vim .ssh/authorized_keys
+    2  wget https://www.nvidia.com/ru-ru/geforce/drivers/results/220756/
+    3  ls
+    4  rm index.html
+    5  wget https://ru.download.nvidia.com/XFree86/Linux-x86_64/550.54.14/NVIDIA-Linux-x86_64-550.54.14.run
+    6  ls
+    7  bash NVIDIA-Linux-x86_64-550.54.14.run
+    8  sudo bash NVIDIA-Linux-x86_64-550.54.14.run
+    9  sudo apt install gcc
+   10  sudo bash NVIDIA-Linux-x86_64-550.54.14.run
+   11  sudo apt install make
+   12  sudo bash NVIDIA-Linux-x86_64-550.54.14.run
+   13  ls
+   14  nvidia-smi
+   15  python
+   16  mkdir -p ~/miniconda3
+   17  wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+   18  bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+   19  rm -rf ~/miniconda3/miniconda.sh
+   20  ~/miniconda3/bin/conda init bash
+   21  ~/miniconda3/bin/conda init zsh
+   22  cd ~
+   23  ls
+   24  screen -S wget
+   25  git
+   26  pip
+   27  df -h
+   28  ls
+   29  screen -r
+   30  ls
+   31  cd ..
+   32  ls
+   33  nvidia-smi
+   34  ls
+   35  systemctl
+   36  ls
+   37  python
+   38  pip
+   39  which python
+   40  ды
+   41  ls
+   42  git clone git@github.com:shigabeev/vits2-inference.git
+   43  ls
+   44  git clone git@github.com:shigabeev/vits2-inference.git
+   45  cd .ssh
+   46  ls
+   47  cd ..
+   48  ls
+   49  cd .ssh
+   50  ls
+   51  nano id_ed25519
+   52  nano id_ed25519.pub
+   53  cd ..
+   54  ls
+   55  git clone git@github.com:shigabeev/vits2-inference.git
+   56  sudo chmod 600 .ssh/id_ed25519*
+   57  ды
+   58  ls
+   59  git clone git@github.com:shigabeev/vits2-inference.git
+   60  ls
+   61  cd vits2-inference/
+   62  ls
+   63  wget https://huggingface.co/frappuccino/vits2_ru_natasha/resolve/main/natasha.onnx?download=true
+   64  ls
+   65  mv natasha.onnx\?download\=true natasha.onnx
+   66  ls
+   67  pip install requirements.txt
+   68  pip install -r requirements.txt
+   69  ды
+   70  ls
+   71  nano flask_api.py
+   72  mkdir model_repository
+   73  ls
+   74  cd model_repository/
+   75  ls
+   76  mkdir natasha
+   77  mkdir shergin
+   78  ls
+   79  cd natasha/
+   80  mkdir 1
+   81  cd 1
+   82  ls
+   83  pwd
+   84  cp ~/vits2-inference/natasha.onnx model.onnx
+   85  ls
+   86  cd ..
+   87  l
+   88  cd ..
+   89  ls
+   90  cd shergin/
+   91  ls
+   92  ls
+   93  cd vits2-inference/
+   94  ls
+   95  cd model_repository/
+   96  ls
+   97  cd sj
+   98  shergin/
+   99  ls
+  100  cd shergin/
+  101  ls
+  102  cd feb1/
+  103  ls
+  104  md5sum shergin_feb1.onnx
+  105  du -sh *
+  106  cd ..
+  107  ls
+  108  cd ..
+  109  ls
+  110  nano demo_onnx.py
+  111  streamlit
+  112  pip install streamlit
+  113  cd vits2-inference/
+  114  ls
+  115  cd model_repository/
+  116  ls
+  117  cd shergin/
+  118  ls
+  119  cd feb1/
+  120  ls
+  121  mv shergin_feb1.onnx model.onnx
+  122  ls
+  123  cd vits2-inference/
+  124  ls
+  125  head demo_onnx.py
+  126  streamlit run demo.py --server.port 8080
+  127  streamlit run demo_onnx.py --server.port 8080
+  128  which streamlit
+  129  ls
+  130  cd viv
+  131  cd vits2-inference/
+  132  ls
+  133  cat demo_onnx.py
+  134  ls
+  135  cd vits2-inference/
+  136  ls
+  137  cd model_repository/
+  138  cd shergin/
+  139  ls
+  140  cd feb1/
+  141  pws
+  142  pwd
+  143  systemctl restart shergin_st
+  144  sudo systemctl restart shergin_st
+  145  ls
+  146  cd vits2-inference/
+  147  ls
+  148  pwd
+  149  sudo nano /etc/systemd/system/shergin_st.service
+  150  uvicorn
+  151  gunicorn
+  152  sudo apt install gunicorn
+  153  sudo systemctl deamon-reload
+  154  sudo systemctl daemon-reload
+  155  sudo systemctl start shergin_st.service
+  156  sudo systemctl status shergin_st.service
+  157  /home/frappuccino/miniconda3/bin/streamlit /home/frappuccino/vits2-inference/demo_onnx.py
+  158  /home/frappuccino/miniconda3/bin/streamlit run /home/frappuccino/vits2-inference/demo_onnx.py  --server.port 80
+  159  /home/frappuccino/miniconda3/bin/streamlit run /home/frappuccino/vits2-inference/demo_onnx.py  --server.port 8080
+  160  sudo nano /etc/systemd/system/shergin_st.service
+  161  sudo systemctl daemon-reload
+  162  sudo systemctl start shergin_st.service
+  163  sudo systemctl status shergin_st.service
+  164  ls
+  165  git checkout normalizer
+  166  git pull
+  167  git checkout normalizer
+  168  git stash
+  169  git pull origin main
+  170  git stash pop
+  171  pip install huggingface_hub
+  172  pip install transformers
+  173  pip install nltk
+  174  pip install nemo_text_processing
+  175  pip install Cython
+  176  pip install nemo_text_processing
+  177  pip install pynini
+  178  pip install nemo_text_processing
+  179  apt install gcc
+  180  sudo apt install gcc
+  181  sudo apt install g++
+  182  pip install nemo_text_processing
+  183  conda install -c conda-forge pynini=2.1.5
+  184  pip install nemo_text_processing
+  185  ды
+  186  ls
+  187  nano flask_api.py
+  188  pip install onnxruntime-gpu
+  189  python
+  190  nano shergin_api.py
+  191  uvicorn shergin_api:app --reload --port 8000 --host 0.0.0.0
+  192  nano shergin_api.py
+  193  nano demo_onnx.py
+  194  uvicorn shergin_api:app --reload --port 8000 --host 0.0.0.0
+  195  which uvicorn
+  196  systemctl status shergin_st
+  197  nano /etc/systemd/system/shergin_api.service
+  198  sudo nano /etc/systemd/system/shergin_api.service
+  199  sudo systemctl daemon-reload
+  200  systemctl status shergin_api
+  201  systemctl start shergin_api
+  202  sudo systemctl start shergin_api
+  203  systemctl status shergin_api
+  204  uptime
+  205  cd ..
+  206  htop
+  207  systemctl status shergin_api
+  208  sudo systemctl start shergin_api
+  209  nano /etc/systemd/system/shergin_api.service
+  210  sudo nano /etc/systemd/system/shergin_api.service
+  211  sudo nano /etc/systemd/system/shergin_st.service
+  212  sudo nano /etc/systemd/system/shergin_api.service
+  213  sudo systemctl daemon-reload
+  214  sudo systemctl start shergin_st
+  215  systemctl status shergin_api
+  216  systemctl status shergin_st
+  217  nano /etc/systemd/system/shergin_st.service
+  218  sudo nano /etc/systemd/system/shergin_st.service
+  219  sudo systemctl daemon-reload
+  220  sudo systemctl start shergin_st
+  221  sudo systemctl status shergin_st
+  222  sudo systemctl restart shergin_st
+  223  sudo systemctl status shergin_st
+  224  sudo systemctl status shergin_api
+  225  watch -n 0.1 nvidia-smi
+  226  pip freeze | onnxruntime
+  227  pip freeze | grep onnxruntime
+  228  pip uninstall onnxruntime
+  229  pip install onnxruntime-gpu
+  230  sudo systemctl restart shergin_api
+  231  sudo systemctl status shergin_api
+  232  sudo systemctl restart shergin_api
+  233  sudo systemctl status shergin_api
+  234  pip install onnxruntime-gpu
+  235  pip uninstall onnxruntime
+  236  pip uninstall onnxruntime-gpu
+  237  pip install onnxruntime-gpu
+  238  sudo systemctl restart shergin_api
+  239  sudo systemctl status shergin_api
+  240  conda install -c conda-forge cudnn
+  241  sudo systemctl status shergin_api
+  242  sudo systemctl restart shergin_api
+  243  sudo systemctl status shergin_api
+  244  pip install onnxruntime-gpu --upgrade
+  245  sudo systemctl restart shergin_api
+  246  sudo systemctl status shergin_api
+  247  conda env list
+  248  screen
+  249  watch -n 0.1 nvidia-smi
+  250  sudo systemctl restart shergin_api
+  251  sudo systemctl status shergin_api
+  252  sudo systemctl status shergin_api]
+  253  sudo systemctl status shergin_api
+  254  sudo systemctl restart shergin_api
+  255  sudo systemctl status shergin_api
+  256  ls
+  257  streamlit run streamlit_fastapi.py --port 4111
+  258  streamlit run streamlit_fastapi.py --server.port 4111
+  259  git status
+  260  git add demo_onnx.py flask_api.py streamlit_fastapi.py  shergin_api.py
+  261  git commit -m "feat: use streamlit as a frontend for FastAPI"
+  262  git config --global user.email "beat@live.ru"
+  263  git config --global user.name "Frappuccino"
+  264  git push origin main
+  265  git checkout feat
+  266  git checkout -b feat
+  267  git push origin feat
+  268  git status
+  269  git commit -m "feat: use streamlit as a frontend for FastAPI"
+  270  git push origin feat
+  271  ls
+  272  ls
+  273  cd vits2-inference/
+  274  ls
+  275  history | grep systemctl
+  276  nvidia-smi
+  277  htop
+  278  ls
+  279  whoami
+  280  cd ..
+  281  ls
+  282  cd skpom/
+  283  ls
+  284  sudo su
+  285  ls
+  286  cd frappuccino/
+  287  ls
+  288  history | grep cudnn
+  289  nvidia-smi
+  290  sudo systemctl status shergin_api
+  291  sudo apt install nvidia-cuda-toolkit
+  292  ды
+  293  ls
+  294  sudo systemctl status shergin_api
+  295  conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+  296  screen
+  297  sudo systemctl status shergin_api
+  298  sudo systemctl restart shergin_api
+  299  sudo systemctl status shergin_api
+  300  sudo systemctl restart shergin_api
+  301  sudo systemctl status shergin_api
+  302  sudo systemctl restart shergin_api
+  303  sudo systemctl status shergin_api
+  304  sudo systemctl restart shergin_api
+  305  sudo systemctl status shergin_api
+  306  sudo systemctl restart shergin_api
+  307  sudo systemctl status shergin_api
+  308  systemctl status shergin_api
+  309  conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+  310  sudo systemctl restart shergin_api
+  311  sudo systemctl status shergin_api
+  312  history | grep cudnn
+  313  conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+  314  sudo systemctl restart shergin_api
+  315  sudo systemctl status shergin_api
+  316  ls
+  317  history | grep systemctl
+  318  sudo systemctl status shergin_ap
+  319  sudo systemctl status shergin_api
+  320  sudo systemctl enable shergin_api
+  321  sudo systemctl status shergin_api
+  322  sudo systemctl start shergin_api
+  323  sudo systemctl status shergin_st.service
+  324  sudo systemctl enable shergin_st.service
+  325  sudo systemctl start shergin_st.service
